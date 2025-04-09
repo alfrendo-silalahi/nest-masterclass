@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import slugify from 'slugify';
 import { CreatePostRequestDto } from '../dtos/request/create-post.request.dto';
 import { UsersService } from '../../users/users.service';
+import { generateSlug } from 'src/utils/slug.util';
 
 @Injectable()
 export class PostsService {
@@ -13,7 +13,7 @@ export class PostsService {
   }
 
   createPost(createPostRequestDto: CreatePostRequestDto): string {
-    const slug: string = this.getSlug(createPostRequestDto.title);
+    const slug: string = generateSlug(createPostRequestDto.title);
     console.log(createPostRequestDto);
     console.log('slug', slug);
     return `new post with title ${createPostRequestDto.title} and content ${createPostRequestDto.content}`;
@@ -21,9 +21,5 @@ export class PostsService {
 
   getPost(id: number): string {
     return `post with id ${id}`;
-  }
-
-  private getSlug(string: string): string {
-    return slugify(string, { replacement: '-', lower: true });
   }
 }
