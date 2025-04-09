@@ -23,7 +23,7 @@ export class PostsService {
     return `post with id ${id}`;
   }
 
-  private getSlug(string: string) {
+  private getSlug(string: string): string {
     return slugify(string, { replacement: '-', lower: true });
   }
 }
