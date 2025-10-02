@@ -75,7 +75,7 @@ export class CreatePostRequestDto {
   })
   @IsISO8601()
   @IsOptional()
-  publishOn?: Date;
+  publishOn: Date;
 
   @ApiPropertyOptional({
     description: 'Array of tags passed as string values',

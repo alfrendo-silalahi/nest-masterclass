@@ -20,8 +20,7 @@ export class UsersService {
   /**
    * The method to get all the users from the database
    */
-  getUsers(page: number, limit: number): GetUserRequestDto[] {
-    console.log(page, limit);
+  getUsers(page: number, limit: number) {
     this.authService.isAuth();
     return users;
   }

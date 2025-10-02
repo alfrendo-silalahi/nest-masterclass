@@ -8,10 +8,11 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
-  login(email: string, password: string, id: number): string {
+  signIn(email: string, password: string, id: number): string {
     this.usersService.getUser(id);
     return 'example token';
   }
+
   isAuth() {
     return true;
   }

@@ -24,7 +24,7 @@ async function bootstrap() {
     .build();
 
   // instantiate document
-  const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api/v1/swagger-ui', app, document);
 
   await app.listen(3000);
