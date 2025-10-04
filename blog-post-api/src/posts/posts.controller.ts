@@ -23,9 +23,9 @@ export class PostsController {
   getPosts(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('user-id', ParseIntPipe) userId: number,
-  ): string {
-    return this.postsService.getPosts(page, limit, userId);
+    @Query('user-id', new DefaultValuePipe(null), ParseIntPipe) userId?: number,
+  ) {
+    return this.postsService.getPosts();
   }
 
   @Get('/:id')
@@ -41,7 +41,7 @@ export class PostsController {
     description: 'You get a 201 response if your post is created sucessfully',
   })
   @Post()
-  createPost(@Body() createPostRequestDto: CreatePostRequestDto): string {
+  createPost(@Body() createPostRequestDto: CreatePostRequestDto) {
     return this.postsService.createPost(createPostRequestDto);
   }
 

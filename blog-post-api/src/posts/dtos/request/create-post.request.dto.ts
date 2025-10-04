@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  MaxLength,
   MinLength,
   ValidateNested,
 } from 'class-validator';
@@ -23,6 +24,7 @@ export class CreatePostRequestDto {
   })
   @IsString()
   @MinLength(4)
+  @MaxLength(512)
   @IsNotEmpty()
   title: string;
 
@@ -66,16 +68,17 @@ export class CreatePostRequestDto {
     example: 'https://example.com/image.jpg',
   })
   @IsUrl()
+  @MaxLength(1024)
   @IsOptional()
   featuredImageUrl?: string;
 
-  @ApiPropertyOptional({
-    description: 'The date on which the blog post is published',
-    example: '2025-04-10T10:00:00Z',
-  })
-  @IsISO8601()
-  @IsOptional()
-  publishOn: Date;
+  // @ApiPropertyOptional({
+  //   description: 'The date on which the blog post is published',
+  //   example: '2025-04-10T10:00:00Z',
+  // })
+  // @IsISO8601()
+  // @IsOptional()
+  // publishOn: Date;
 
   @ApiPropertyOptional({
     description: 'Array of tags passed as string values',

@@ -13,7 +13,6 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/request/create-user.request.dto';
 import { UpdateUserDto } from './dtos/request/update-user.request.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GetUserRequestDto } from './dtos/response/get-user.response.dto';
 
 @Controller('/api/v1/users')
 @ApiTags('Users')
@@ -43,11 +42,11 @@ export class UsersController {
     status: 200,
     description: 'Users fetched successfully based on the query',
   })
-  getUsers(
+  async getUsers(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-  ): GetUserRequestDto[] {
-    return this.usersService.getUsers(page, limit);
+  ) {
+    return this.usersService.getUsers();
   }
 
   @Get('/:id')
@@ -56,8 +55,8 @@ export class UsersController {
   }
 
   @Post()
-  public createUser(@Body() createUserDto: CreateUserDto): string {
-    return this.usersService.createUser(createUserDto);
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    await this.usersService.createUser(createUserDto);
   }
 
   @Patch('/:id')

@@ -14,7 +14,7 @@ async function bootstrap() {
   );
 
   // swagger configuration
-  const config: Omit<OpenAPIObject, 'paths'> = new DocumentBuilder()
+  const config = new DocumentBuilder()
     .setTitle('Nest.js Masterclass - Blog app API')
     .setDescription('Use the base API URL as http://localhost:3000')
     .setTermsOfService('http://localhost:3000/terms-of-service')
