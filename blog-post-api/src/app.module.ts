@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { User } from './users/entities/user.entity';
-import { Post } from './posts/entities/post.entity';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './database/database.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -12,22 +11,10 @@ import { Post } from './posts/entities/post.entity';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    DatabaseModule,
+    AuthModule,
     UsersModule,
     PostsModule,
-    AppModule,
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        entities: [User, Post],
-        synchronize: configService.get<boolean>('DB_SYNCHRONIZE'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        host: configService.get<string>('DB_HOST'),
-        database: configService.get<string>('DB_DATABASE'),
-      }),
-    }),
   ],
 })
 export class AppModule {}

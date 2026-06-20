@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/request/create-user.request.dto';
@@ -34,8 +36,7 @@ export class UsersController {
     name: 'page',
     type: 'number',
     required: false,
-    description:
-      'The position ot the page number that you want the API to return',
+    description: 'The position ot the page number that you want the API to return',
     example: 1,
   })
   @ApiResponse({
@@ -43,21 +44,20 @@ export class UsersController {
     description: 'Users fetched successfully based on the query',
   })
   async getUsers(
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
+    @Req() req: Request,
   ) {
-    return this.usersService.getUsers();
+    return this.usersService.getUsers(page, size);
   }
 
   @Get('/:id')
-  getUser(@Param('id', ParseIntPipe) id: number): string {
+  getUser(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.getUser(id);
   }
 
   @Post()
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    await this.usersService.createUser(createUserDto);
-  }
+  async createUser(@Body() createUserDto: CreateUserDto) {}
 
   @Patch('/:id')
   public updateUser(

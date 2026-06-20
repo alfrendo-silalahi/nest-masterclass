@@ -21,11 +21,11 @@ export class PostsController {
 
   @Get()
   getPosts(
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('size', new DefaultValuePipe(10), ParseIntPipe) size: number,
     @Query('user-id', new DefaultValuePipe(null), ParseIntPipe) userId?: number,
   ) {
-    return this.postsService.getPosts();
+    return this.postsService.getPosts(page, size);
   }
 
   @Get('/:id')

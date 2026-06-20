@@ -55,8 +55,7 @@ export class CreatePostRequestDto {
   content?: string;
 
   @ApiPropertyOptional({
-    description:
-      'Serializer your JSON object else a validation error will be thrown',
+    description: 'Serializer your JSON object else a validation error will be thrown',
     example: '{\"layout\": \"default\"}',
   })
   @IsJSON()
@@ -71,14 +70,6 @@ export class CreatePostRequestDto {
   @MaxLength(1024)
   @IsOptional()
   featuredImageUrl?: string;
-
-  // @ApiPropertyOptional({
-  //   description: 'The date on which the blog post is published',
-  //   example: '2025-04-10T10:00:00Z',
-  // })
-  // @IsISO8601()
-  // @IsOptional()
-  // publishOn: Date;
 
   @ApiPropertyOptional({
     description: 'Array of tags passed as string values',
@@ -97,8 +88,7 @@ export class CreatePostRequestDto {
       properties: {
         key: {
           type: 'string',
-          description:
-            'The key can be any string identifier for your meta option',
+          description: 'The key can be any string identifier for your meta option',
           example: 'sidebarEnabled',
         },
         value: {
