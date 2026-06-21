@@ -16,7 +16,7 @@ FROM node:lts-alpine3.24
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
