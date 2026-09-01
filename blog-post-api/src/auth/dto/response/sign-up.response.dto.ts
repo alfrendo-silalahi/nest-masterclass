@@ -2,7 +2,7 @@ export default class SignUpResponse {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
-  user: User;
+  user: User | null;
 }
 
 class User {

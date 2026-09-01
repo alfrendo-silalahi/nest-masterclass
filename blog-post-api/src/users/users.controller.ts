@@ -19,7 +19,7 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 @Controller('/api/v1/users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get()
   @ApiOperation({
@@ -57,7 +57,7 @@ export class UsersController {
   }
 
   @Post()
-  async createUser(@Body() createUserDto: CreateUserDto) {}
+  async createUser(@Body() createUserDto: CreateUserDto) { }
 
   @Patch('/:id')
   public updateUser(

@@ -1,11 +1,11 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import SignInRequest from '../dto/request/sign-in.request.dto';
 import SignUpRequest from '../dto/request/sign-up.request.dto';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from '../../database/database.service';
 import { PoolClient } from 'pg';
 import * as bcrypt from 'bcryptjs';
 import SignInResponse from '../dto/response/sign-in.response.dto';
-import BaseResponse from 'src/shared/dto/response/base.response.dto';
+import BaseResponse from '../../shared/dto/response/base.response.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import SignUpResponse from '../dto/response/sign-up.response.dto';
@@ -18,10 +18,10 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly ds: DatabaseService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async signUp(signUpRequest: SignUpRequest): Promise<SignUpResponse> {
-    let client: PoolClient;
+  async signUp(signUpRequest: SignUpRequest): Promise<SignUpResponse | undefined> {
+    let client: PoolClient | undefined;
 
     try {
       client = await this.ds.getPool().connect();
@@ -57,7 +57,6 @@ export class AuthService {
       };
     } catch (err) {
       if (err instanceof HttpException) {
-        this.logger.error(err.message);
         throw err;
       }
       if (err instanceof Error) {
@@ -70,7 +69,7 @@ export class AuthService {
   }
 
   async signIn(signInRequest: SignInRequest): Promise<BaseResponse<SignInResponse>> {
-    let client: PoolClient;
+    let client: PoolClient | undefined;
     try {
       client = await this.ds.getPool().connect();
 

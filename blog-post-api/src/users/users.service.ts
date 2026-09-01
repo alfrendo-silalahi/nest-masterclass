@@ -10,7 +10,7 @@ export class UsersService {
   constructor(private readonly db: DatabaseService) {}
 
   async getUsers(page: number, size: number) {
-    let client: PoolClient;
+    let client: PoolClient | undefined;
     try {
       client = await this.db.getPool().connect();
       const result = await client.query<User>(
@@ -35,7 +35,7 @@ export class UsersService {
   }
 
   async getUser(id: number) {
-    let client: PoolClient;
+    let client: PoolClient | undefined;
     try {
       client = await this.db.getPool().connect();
       const result = await client.query<User>(
