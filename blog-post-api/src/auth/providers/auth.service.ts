@@ -1,9 +1,21 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import SignInRequest from '../dto/request/sign-in.request.dto';
 import SignUpRequest from '../dto/request/sign-up.request.dto';
+import ForgetPasswordRequest from '../dto/request/forget-password.request.dto';
+import ForgetPasswordValidateOtpRequest from '../dto/request/forget-password-validate-otp.request.dto';
 import { DatabaseService } from '../../database/database.service';
+import { RedisService } from '../../redis/redis.service';
+import { MailService } from '../../mail/mail.service';
 import { PoolClient } from 'pg';
 import * as bcrypt from 'bcryptjs';
+import { randomInt } from 'crypto';
 import SignInResponse from '../dto/response/sign-in.response.dto';
 import BaseResponse from '../../shared/dto/response/base.response.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -18,6 +30,8 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly ds: DatabaseService,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
+    private readonly mailService: MailService,
   ) { }
 
   async signUp(signUpRequest: SignUpRequest): Promise<SignUpResponse | undefined> {
@@ -132,6 +146,92 @@ export class AuthService {
       throw new HttpException('Internal server error.', HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       if (client) client.release();
+    }
+  }
+
+  async forgetPassword(
+    forgetPasswordRequest: ForgetPasswordRequest,
+  ): Promise<BaseResponse<null>> {
+    let client: PoolClient | undefined;
+    try {
+      client = await this.ds.getPool().connect();
+
+      const response = await client.query<{ email: string }>(
+        `
+        select email
+        from users
+        where email = $1
+        `,
+        [forgetPasswordRequest.email],
+      );
+
+      if (response.rowCount != 1) throw new NotFoundException('User not found.');
+
+      // generate a 6 digit otp
+      const otp = randomInt(100000, 1000000).toString();
+      const ttlSeconds = this.configService.get<number>('FORGET_PASSWORD_OTP_TTL', 300);
+      const key = this.buildOtpKey(forgetPasswordRequest.email);
+
+      // save otp into redis for the next validation step
+      await this.redisService.set(key, otp, ttlSeconds);
+
+      // send otp to user email
+      await this.mailService.sendPasswordResetOtp(
+        forgetPasswordRequest.email,
+        otp,
+        Math.floor(ttlSeconds / 60),
+      );
+
+      return {
+        success: true,
+        message: 'Password reset OTP has been sent to your email.',
+        data: null,
+      };
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      if (err instanceof Error) {
+        this.logger.error(err.message);
+        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      throw new HttpException('Internal server error.', HttpStatus.INTERNAL_SERVER_ERROR);
+    } finally {
+      if (client) client.release();
+    }
+  }
+
+  private buildOtpKey(email: string): string {
+    return `forget-password:otp:${email.toLowerCase()}`;
+  }
+
+  async forgetPasswordValidateOtp(forgetPasswordValidateOtpRequest: ForgetPasswordValidateOtpRequest) {
+    try {
+      const key = this.buildOtpKey(forgetPasswordValidateOtpRequest.email);
+
+      // get otp from redis
+      const otpCache = await this.redisService.get(key);
+      if (!otpCache) {
+        throw new Error("OTP expired!");
+      }
+
+      if (otpCache !== forgetPasswordValidateOtpRequest.otp) {
+        throw new Error("Invalid OTP!");
+      }
+
+      // remove otp from redis
+      await this.redisService.del(key);
+
+      return {
+        success: true,
+        message: 'OTP success validated!',
+        data: null,
+      };
+    } catch (err)  {
+      if (err instanceof Error) {
+        this.logger.error(err.message);
+        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      throw new HttpException('Internal server error.', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
